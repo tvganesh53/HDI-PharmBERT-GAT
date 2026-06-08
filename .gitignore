@@ -24,3 +24,6 @@ Thumbs.db
 *.pth
 *.bin
 *.onnx
+
+keys.json
+.env.example.c
