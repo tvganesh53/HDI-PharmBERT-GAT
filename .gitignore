@@ -1,27 +1,22 @@
 # Python
+venv/
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
 
-# Environment
+# Sensitive files
 .env
-.venv/
-venv/
+keys.json
 
-# AI model weights
-*.pt
-*.pth
-*.bin
-*.safetensors
-
-# Datasets
-*.csv
-*.xlsx
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Node
-node_modules/
+# Reports
+coverage_report/
+.coverage
+coverage.xml
 
 # Logs
-*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
