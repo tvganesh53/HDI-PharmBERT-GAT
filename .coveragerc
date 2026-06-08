@@ -1,0 +1,37 @@
+[run]
+source =
+    pipeline
+    job_queue
+    metrics
+    logger
+    api_keys
+    auth
+    rate_limiter
+omit =
+    venv/*
+    */venv/*
+    test_*.py
+    conftest.py
+    load_test.py
+    app_phase_*.py
+    app.py
+    check_model.py
+    predictor*.py
+    worker.py
+    batcher.py
+    schemas*.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if TYPE_CHECKING:
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+show_missing = True
+precision = 2
+
+[html]
+directory = coverage_report
+title = Phase F — Coverage Report

@@ -1,0 +1,29 @@
+# ── Web server ────────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
+httpx==0.27.2          # test client used by test_api.py
+
+# ── Config ────────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+pydantic==2.9.2
+pydantic-settings==2.6.1
+
+# ── ML core — uncomment what your model needs ─────────────────────────────────
+# torch==2.4.1          # PyTorch (CPU wheel; use +cu121 suffix for CUDA)
+# torchvision==0.19.1
+# transformers==4.45.2  # HuggingFace Transformers
+# tokenizers==0.20.1
+# onnxruntime==1.19.2   # ONNX Runtime (CPU)
+# onnxruntime-gpu==1.19.2  # ONNX Runtime (GPU)
+# scikit-learn==1.5.2   # scikit-learn
+# joblib==1.4.2
+# numpy==1.26.4
+# pandas==2.2.3
+
+# ── Observability (optional) ──────────────────────────────────────────────────
+# prometheus-fastapi-instrumentator==7.0.0
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest==8.3.3
+pytest-asyncio==0.24.0

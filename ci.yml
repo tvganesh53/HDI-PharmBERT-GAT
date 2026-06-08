@@ -1,0 +1,108 @@
+name: Phase F — CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Tests & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Python setup ─────────────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ── Install dependencies ─────────────────────────────────────────────────
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_e.txt
+          pip install pytest-cov coverage locust
+
+      # ── Environment ──────────────────────────────────────────────────────────
+      - name: Create test .env
+        run: |
+          echo "GROQ_API_KEY=test-key-ci" >> .env
+          echo "CLASSIFIER_MODEL=llama-3.1-8b-instant" >> .env
+          echo "CLASSIFIER_CONTEXT=customer support messages" >> .env
+          echo "CLASSIFIER_LABELS=billing,technical_support,account_management,sales_inquiry,complaint,feature_request,general_question,other" >> .env
+          echo "MAX_INPUT_LENGTH=512" >> .env
+          echo "MAX_BATCH_SIZE=32" >> .env
+          echo "BATCH_TIMEOUT_MS=50" >> .env
+          echo "NUM_WORKERS=2" >> .env
+          echo "SYNC_TIMEOUT_S=30" >> .env
+          echo "QUEUE_MAX_SIZE=500" >> .env
+          echo "QUEUE_BACKEND=memory" >> .env
+          echo "RATE_LIMIT_PER_MINUTE=60" >> .env
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Run unit tests
+        run: |
+          pytest test_coverage.py -v \
+            --cov=. \
+            --cov-report=term-missing \
+            --cov-report=html:coverage_report \
+            --cov-report=xml:coverage.xml \
+            --cov-fail-under=80 \
+            -m "not load"
+
+      # ── Upload coverage report ────────────────────────────────────────────────
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage_report/
+
+      # ── Coverage badge ────────────────────────────────────────────────────────
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: coverage.xml
+          fail_ci_if_error: false
+
+      # ── Load test (smoke — 10 users, 30s) ────────────────────────────────────
+      - name: Start server for load test
+        run: |
+          python -m uvicorn app_phase_e:app --port 8001 &
+          sleep 5
+        env:
+          GROQ_API_KEY: test-key-ci
+
+      - name: Run smoke load test
+        run: |
+          locust -f load_test.py \
+            --headless \
+            --users 10 \
+            --spawn-rate 2 \
+            --run-time 30s \
+            --host http://localhost:8001 \
+            --only-summary \
+            --exit-code-on-error 0
+
+  # ── Lint (optional but good practice) ───────────────────────────────────────
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install linters
+        run: pip install ruff
+      - name: Run ruff linter
+        run: ruff check . --ignore E501,F401
+        continue-on-error: true
