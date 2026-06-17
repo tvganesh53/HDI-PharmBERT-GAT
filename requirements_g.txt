@@ -1,0 +1,20 @@
+# Phase G — MySQL + SQLAlchemy requirements
+# Install with: pip install -r requirements_g.txt
+
+# ── Core (add to existing requirements) ──────────────────────────────────────
+sqlalchemy[asyncio]>=2.0.30
+aiomysql>=0.2.0          # async MySQL driver used by SQLAlchemy
+pymysql>=1.1.0           # sync fallback / migration scripts
+
+# ── Already installed from previous phases ───────────────────────────────────
+# fastapi
+# uvicorn[standard]
+# pydantic>=2.0
+# python-dotenv
+# groq
+# prometheus-client
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+aiosqlite>=0.20.0        # in-memory SQLite for tests (no real MySQL needed)
+pytest-asyncio>=0.23
+httpx>=0.27

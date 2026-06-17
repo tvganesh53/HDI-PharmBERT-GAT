@@ -1,0 +1,82 @@
+﻿# docker-compose.yml â€” Phase D monitoring stack
+# Starts: FastAPI app + Prometheus + Grafana
+
+services:
+ 
+  db:
+    image: mysql:8.0
+    container_name: nlp_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "ganesh@2008"
+      MYSQL_DATABASE: nlp_classifier
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./keys.json:/app/keys.json   # â† this line must exist
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+ 
+  app:
+    build: .
+    container_name: nlp_app
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - GROQ_API_KEY=YOUR_GROQ_KEY
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=ganesh@2008
+      - MYSQL_DATABASE=nlp_classifier
+      - QUEUE_BACKEND=memory
+      - NUM_WORKERS=2
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+ 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nlp_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nlp_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+ 
+volumes:
+  mysql_data:
+  prometheus_data:
+  grafana_data:
+ 

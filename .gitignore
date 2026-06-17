@@ -1,0 +1,8 @@
+﻿*.pt
+model_cache/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+keys.json

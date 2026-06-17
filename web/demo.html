@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo — HDI Predictor</title>
+<meta name="description" content="Enter life expectancy, schooling, and income data to get a predicted HDI score.">
+<link rel="stylesheet" href="style.css">
+<style>
+  .demo-grid{
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 860px){ .demo-grid{ grid-template-columns: 1fr; } }
+
+  .field{ margin-bottom: 20px; }
+  .field label{
+    display:block; font-size:0.85rem; font-weight:600; margin-bottom: 6px; color: var(--ink);
+  }
+  .field .hint{ font-size: 0.78rem; color: var(--slate); margin-top: 4px; }
+  .field input, .field select{
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  .field input:focus, .field select:focus{ border-color: var(--teal); }
+
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 24px; }
+  .preset-btn{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    color: var(--slate);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .preset-btn:hover{ border-color: var(--teal); color: var(--teal-deep); }
+
+  .result-panel{
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    border-radius: var(--radius);
+    padding: 36px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .result-panel.is-empty .dial-wrap{ opacity: 0.25; }
+  .dial-wrap{ position: relative; transition: opacity 0.3s ease; }
+  .dial-value{
+    position:absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+    font-family: var(--font-mono); font-size: 2.6rem; color: var(--ink);
+  }
+  .dial-tier{
+    margin-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+  }
+  .dial-caption{ margin-top: 6px; color: var(--slate); font-size: 0.9rem; max-width: 320px; }
+  .breakdown{
+    margin-top: 28px;
+    width: 100%;
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    text-align: left;
+  }
+  .breakdown-row{
+    display:flex; justify-content: space-between; font-size: 0.85rem;
+    padding: 6px 0; color: var(--slate);
+  }
+  .breakdown-row span:last-child{ font-family: var(--font-mono); color: var(--ink); }
+
+  .error-msg{
+    color: var(--signal);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: none;
+  }
+  .error-msg.show{ display: block; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand"><span>HDI Predictor</span><span class="brand-mark">v1.0</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="demo.html" class="active">Demo</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="section" style="padding-top: 56px;">
+    <div class="container">
+      <p class="eyebrow">Run the model</p>
+      <h1 style="font-size: clamp(1.8rem, 3vw, 2.6rem);">Classify a country's development tier</h1>
+      <p class="lede">Enter the three indicator values below, or load a sample profile, then predict.</p>
+
+      <div class="demo-grid" style="margin-top: 40px;">
+
+        <form class="card" id="hdi-form" novalidate>
+          <div class="preset-row">
+            <button type="button" class="preset-btn" data-preset="high">Norway-like</button>
+            <button type="button" class="preset-btn" data-preset="mid">Mid-income</button>
+            <button type="button" class="preset-btn" data-preset="low">Low-income</button>
+          </div>
+
+          <div class="field">
+            <label for="life-exp">Life expectancy at birth (years)</label>
+            <input type="number" id="life-exp" step="0.1" min="20" max="95" placeholder="e.g. 72.5" required>
+            <div class="hint">Typical range: 50–85</div>
+            <div class="error-msg" id="err-life-exp">Enter a value between 20 and 95.</div>
+          </div>
+
+          <div class="field">
+            <label for="mean-school">Mean years of schooling</label>
+            <input type="number" id="mean-school" step="0.1" min="0" max="20" placeholder="e.g. 8.2" required>
+            <div class="error-msg" id="err-mean-school">Enter a value between 0 and 20.</div>
+          </div>
+
+          <div class="field">
+            <label for="exp-school">Expected years of schooling</label>
+            <input type="number" id="exp-school" step="0.1" min="0" max="22" placeholder="e.g. 13.1" required>
+            <div class="error-msg" id="err-exp-school">Enter a value between 0 and 22.</div>
+          </div>
+
+          <div class="field">
+            <label for="gni">GNI per capita, PPP (constant 2017 intl $)</label>
+            <input type="number" id="gni" step="1" min="200" max="150000" placeholder="e.g. 14000" required>
+            <div class="error-msg" id="err-gni">Enter a value between 200 and 150,000.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top: 8px;">
+            Predict HDI score
+          </button>
+        </form>
+
+        <div class="result-panel is-empty" id="result-panel">
+          <div class="dial-wrap">
+            <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Index dial">
+              <circle cx="110" cy="110" r="92" fill="none" stroke="var(--line)" stroke-width="14"/>
+              <circle id="dial-arc" cx="110" cy="110" r="92" fill="none" stroke="var(--teal)" stroke-width="14"
+                      stroke-dasharray="578.05" stroke-dashoffset="578.05" stroke-linecap="round"
+                      transform="rotate(-90 110 110)" style="transition: stroke-dashoffset 0.8s ease;"/>
+            </svg>
+            <div class="dial-value" id="dial-value">—</div>
+          </div>
+          <div class="dial-tier" id="dial-tier">Awaiting input</div>
+          <p class="dial-caption" id="dial-caption">Fill in the four fields and press predict to see a modeled HDI score and development tier.</p>
+
+          <div class="breakdown" id="breakdown" style="display:none;">
+            <div class="breakdown-row"><span>Life expectancy index</span><span id="b-life">—</span></div>
+            <div class="breakdown-row"><span>Education index</span><span id="b-edu">—</span></div>
+            <div class="breakdown-row"><span>Income index</span><span id="b-inc">—</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <p style="margin-top: 32px; font-size: 0.82rem; color: var(--slate);">
+        This calculation runs entirely in your browser using the published UNDP HDI geometric-mean formula with fixed goalposts. Replace the <code class="text-mono">computeHDI()</code> function in this page to call your own trained model instead.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><span class="footnote-mark">№</span> HDI Predictor — a research demonstration, not an official UNDP product.</span>
+    <span>Built for academic and exploratory use.</span>
+  </div>
+</footer>
+
+<script>
+  const form = document.getElementById('hdi-form');
+  const panel = document.getElementById('result-panel');
+  const dialArc = document.getElementById('dial-arc');
+  const dialValue = document.getElementById('dial-value');
+  const dialTier = document.getElementById('dial-tier');
+  const dialCaption = document.getElementById('dial-caption');
+  const breakdown = document.getElementById('breakdown');
+  const CIRCUMFERENCE = 578.05;
+
+  const presets = {
+    high: { life: 83.2, mean: 13.0, exp: 18.2, gni: 66500 },
+    mid:  { life: 72.4, mean: 8.1,  exp: 13.4, gni: 14200 },
+    low:  { life: 61.5, mean: 4.6,  exp: 9.0,  gni: 2300 }
+  };
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = presets[btn.dataset.preset];
+      document.getElementById('life-exp').value = p.life;
+      document.getElementById('mean-school').value = p.mean;
+      document.getElementById('exp-school').value = p.exp;
+      document.getElementById('gni').value = p.gni;
+    });
+  });
+
+  function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
+
+  // UNDP-style sub-index calculation with fixed goalposts.
+  function computeHDI({ life, mean, exp, gni }){
+    const lifeIndex = clamp((life - 20) / (85 - 20), 0, 1);
+    const eduIndex = clamp(((mean / 18) + (exp / 18)) / 2, 0, 1);
+    const incomeIndex = clamp(
+      (Math.log(gni) - Math.log(100)) / (Math.log(75000) - Math.log(100)),
+      0, 1
+    );
+    const hdi = Math.cbrt(lifeIndex * eduIndex * incomeIndex);
+    return { hdi, lifeIndex, eduIndex, incomeIndex };
+  }
+
+  function tierFor(hdi){
+    if (hdi >= 0.8) return 'Very High';
+    if (hdi >= 0.7) return 'High';
+    if (hdi >= 0.55) return 'Medium';
+    return 'Low';
+  }
+
+  function validateField(id, min, max){
+    const el = document.getElementById(id);
+    const err = document.getElementById('err-' + id);
+    const val = parseFloat(el.value);
+    const valid = !isNaN(val) && val >= min && val <= max;
+    err.classList.toggle('show', !valid);
+    el.style.borderColor = valid ? 'var(--line)' : 'var(--signal)';
+    return valid ? val : null;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const life = validateField('life-exp', 20, 95);
+    const mean = validateField('mean-school', 0, 20);
+    const exp = validateField('exp-school', 0, 22);
+    const gni = validateField('gni', 200, 150000);
+
+    if (life === null || mean === null || exp === null || gni === null) return;
+
+    const { hdi, lifeIndex, eduIndex, incomeIndex } = computeHDI({ life, mean, exp, gni });
+    const tier = tierFor(hdi);
+
+    panel.classList.remove('is-empty');
+    dialValue.textContent = hdi.toFixed(3);
+    dialTier.textContent = tier + ' human development';
+    dialCaption.textContent = 'Modeled from the indicators you entered using the geometric-mean HDI formula.';
+    breakdown.style.display = 'block';
+    document.getElementById('b-life').textContent = lifeIndex.toFixed(3);
+    document.getElementById('b-edu').textContent = eduIndex.toFixed(3);
+    document.getElementById('b-inc').textContent = incomeIndex.toFixed(3);
+
+    const offset = CIRCUMFERENCE * (1 - hdi);
+    requestAnimationFrame(() => { dialArc.style.strokeDashoffset = offset; });
+  });
+</script>
+
+</body>
+</html>

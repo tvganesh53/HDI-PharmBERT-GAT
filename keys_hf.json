@@ -1,0 +1,12 @@
+{
+  "kid-permanent001": {
+    "key_id": "kid-permanent001",
+    "key_hash": "3f663e718a231ef3285da0fe6a11a65b5091306877b7f3a217774e82a12f7f6f",
+    "name": "permanent-admin",
+    "role": "admin",
+    "created_at": 1781174605.5482352,
+    "is_active": true,
+    "requests_today": 0,
+    "last_used": null
+  }
+}

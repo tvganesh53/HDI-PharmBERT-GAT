@@ -1,0 +1,84 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+
+      - name: Push to Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'EOF'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+
+          # Files to upload to HF Space
+          files = [
+              "README.md",
+              "Dockerfile",
+              "requirements_hf.txt",
+              "db_adapter.py",
+              "app_phase_g.py",
+              "predictor.py",
+              "pipeline.py",
+              "batcher.py",
+              "worker.py",
+              "schemas.py",
+              "queue.py",
+              "auth.py",
+              "api_keys.py",
+              "rate_limiter.py",
+          ]
+
+          repo_id = "tvganesh538/nlp-classifier-api"
+
+          # Create space if it doesn't exist
+          try:
+              api.create_repo(
+                  repo_id=repo_id,
+                  repo_type="space",
+                  space_sdk="docker",
+                  exist_ok=True,
+              )
+              print(f"Space ready: {repo_id}")
+          except Exception as e:
+              print(f"Repo creation note: {e}")
+
+          # Upload each file
+          for f in files:
+              if os.path.exists(f):
+                  api.upload_file(
+                      path_or_fileobj=f,
+                      path_in_repo=f,
+                      repo_id=repo_id,
+                      repo_type="space",
+                  )
+                  print(f"Uploaded: {f}")
+              else:
+                  print(f"Skipped (not found): {f}")
+
+          print("Deployment complete!")
+          print(f"View at: https://huggingface.co/spaces/{repo_id}")
+          EOF

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — HDI Predictor</title>
+<meta name="description" content="Methodology, data sources, and limitations behind the HDI Predictor model.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand"><span>HDI Predictor</span><span class="brand-mark">v1.0</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="section" style="padding-top: 56px;">
+    <div class="with-index">
+      <div class="index-col"><span>NOTE — METHODOLOGY</span></div>
+      <div style="max-width: 680px;">
+        <p class="eyebrow">About this project</p>
+        <h1 style="font-size: clamp(1.8rem, 3vw, 2.6rem);">What the model does, and where it falls short</h1>
+        <p class="lede">A short account of the formula, the data it assumes, and the cases where it should not be trusted.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="with-index">
+      <div class="index-col"><span>§1 — FORMULA</span></div>
+      <div style="max-width: 680px;">
+        <h2>The HDI formula</h2>
+        <p>The Human Development Index combines three sub-indices, health, education, and income, into a single score between 0 and 1, using a geometric mean rather than a simple average. That choice penalizes countries that are lopsided: very high income with poor health, for example, does not buy back a high score the way an arithmetic average would allow.</p>
+        <p>Each sub-index is built by rescaling a raw indicator against fixed minimum and maximum goalposts, the same approach the UNDP has used since the index's 2010 methodology revision. This demo reproduces that formula directly in the browser rather than calling a hosted model, so the numbers it returns will track the official UNDP statistics closely for any country whose raw indicators are entered accurately.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--paper-raised); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="with-index">
+      <div class="index-col"><span>§2 — INPUTS</span></div>
+      <div style="max-width: 680px;">
+        <h2>Indicators and goalposts</h2>
+        <p>The model takes four raw figures and produces three sub-indices:</p>
+        <div class="card" style="margin: 20px 0;">
+          <div class="breakdown-row" style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size:0.9rem;">
+            <span style="font-weight:600;">Life expectancy at birth</span><span style="color:var(--slate);">Goalposts: 20 – 85 years</span>
+          </div>
+          <div class="breakdown-row" style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size:0.9rem;">
+            <span style="font-weight:600;">Mean &amp; expected years of schooling</span><span style="color:var(--slate);">Goalposts: 0 – 18 years</span>
+          </div>
+          <div class="breakdown-row" style="display:flex; justify-content:space-between; padding: 8px 0; font-size:0.9rem;">
+            <span style="font-weight:600;">GNI per capita, PPP</span><span style="color:var(--slate);">Goalposts: $100 – $75,000, log-scaled</span>
+          </div>
+        </div>
+        <p>Income is log-scaled before rescaling, reflecting the diminishing returns of additional income on wellbeing at higher levels, consistent with the UNDP's published technical notes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="with-index">
+      <div class="index-col"><span>§3 — TIERS</span></div>
+      <div style="max-width: 680px;">
+        <h2>Development tiers</h2>
+        <p>The demo reports a tier alongside the raw score, following the UNDP's standard breakpoints:</p>
+        <div class="card" style="margin: 20px 0;">
+          <div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size:0.9rem;"><span>Very High</span><span class="text-mono">≥ 0.800</span></div>
+          <div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size:0.9rem;"><span>High</span><span class="text-mono">0.700 – 0.799</span></div>
+          <div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size:0.9rem;"><span>Medium</span><span class="text-mono">0.550 – 0.699</span></div>
+          <div style="display:flex; justify-content:space-between; padding: 8px 0; font-size:0.9rem;"><span>Low</span><span class="text-mono">&lt; 0.550</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--paper-raised); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="with-index">
+      <div class="index-col"><span>§4 — LIMITS</span></div>
+      <div style="max-width: 680px;">
+        <h2>Limitations</h2>
+        <p>The HDI is a composite of three dimensions only; it omits inequality, environmental sustainability, gender gaps, and political freedom, each of which the UNDP tracks separately through complementary indices. A score from this tool describes average national attainment, not distribution across a population, and should not stand in for those other measures.</p>
+        <p>This page runs the published formula directly rather than a fitted statistical model, so its accuracy depends entirely on the accuracy of the four numbers you provide, not on any training data of its own.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="with-index">
+      <div class="index-col"><span>§5 — STACK</span></div>
+      <div style="max-width: 680px;">
+        <h2>Built with</h2>
+        <p>Static HTML, CSS, and vanilla JavaScript. No build step, no backend, and no data leaves the browser. Hosted on GitHub Pages.</p>
+        <a href="demo.html" class="btn btn-primary" style="margin-top: 12px;">Try the demo →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><span class="footnote-mark">№</span> HDI Predictor — a research demonstration, not an official UNDP product.</span>
+    <span>Built for academic and exploratory use.</span>
+  </div>
+</footer>
+
+</body>
+</html>

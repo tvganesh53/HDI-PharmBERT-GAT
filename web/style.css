@@ -1,0 +1,246 @@
+/* ============================================================
+   HDI Predictor — shared stylesheet
+   Token system:
+   Color   : --ink #0B1F2A, --paper #F4F8F7, --teal #0E6E6E,
+             --teal-deep #0A4F4F, --slate #45616B, --line #D2E1DE,
+             --signal #C7682B (sparingly, for the prediction reveal)
+   Type    : Display = "Fraunces" (serif, academic gravitas)
+             Body    = "Inter" (clean, legible UI)
+             Mono    = "IBM Plex Mono" (data / numbers)
+   Layout  : Hairline-ruled sections, generous margin, a left
+             "running index" column on long-form pages — borrowed
+             from journal article layout.
+   Signature: the "index dial" — a circular gauge built from a
+              conic-gradient that animates to the predicted HDI
+              value. Used on demo + echoed small on home.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink: #0B1F2A;
+  --paper: #F4F8F7;
+  --paper-raised: #FFFFFF;
+  --teal: #0E6E6E;
+  --teal-deep: #0A4F4F;
+  --teal-soft: #E3F0EE;
+  --slate: #45616B;
+  --line: #D2E1DE;
+  --signal: #C7682B;
+  --radius: 2px;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+*{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+
+body{
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a{ color: var(--teal-deep); text-decoration: none; }
+a:hover{ text-decoration: underline; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+.container{
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ---------- Site chrome ---------- */
+.site-header{
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-raised);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.brand{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+.brand .brand-mark{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--teal);
+  border: 1px solid var(--teal);
+  padding: 2px 6px;
+  letter-spacing: 0.06em;
+}
+.nav-links{
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.nav-links a{
+  color: var(--slate);
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+.nav-links a:hover{ color: var(--ink); text-decoration: none; }
+.nav-links a.active{
+  color: var(--teal-deep);
+  border-bottom-color: var(--teal);
+}
+.nav-toggle{ display: none; }
+
+.site-footer{
+  border-top: 1px solid var(--line);
+  padding: 36px 32px 48px;
+  margin-top: 80px;
+}
+.footer-inner{
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: var(--slate);
+}
+.footer-inner .footnote-mark{ font-family: var(--font-mono); color: var(--teal); }
+
+/* ---------- Running index (left margin column) ---------- */
+.with-index{
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 0 40px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.index-col{
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  padding-top: 6px;
+  letter-spacing: 0.04em;
+  border-right: 1px solid var(--line);
+}
+.index-col span{
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ---------- Headings & text rhythm ---------- */
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin: 0 0 12px;
+}
+h1, h2, h3{
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 0.5em;
+}
+h1{ font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.08; font-weight: 700;}
+h2{ font-size: clamp(1.5rem, 2.6vw, 2rem); }
+h3{ font-size: 1.15rem; }
+p{ margin: 0 0 1em; color: var(--ink); }
+.lede{ font-size: 1.15rem; color: var(--slate); max-width: 640px; }
+
+hr.rule{
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 56px 0;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover{ text-decoration: none; }
+.btn-primary{ background: var(--teal-deep); color: #fff; }
+.btn-primary:hover{ background: var(--teal); }
+.btn-primary:disabled{ background: var(--slate); cursor: not-allowed; opacity: 0.6; }
+.btn-ghost{ background: transparent; border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover{ border-color: var(--teal); color: var(--teal-deep); }
+
+/* ---------- Cards ---------- */
+.card{
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+/* ---------- Tags / pills ---------- */
+.tag{
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  color: var(--slate);
+  border-radius: var(--radius);
+}
+
+/* ---------- Utility ---------- */
+.section{ padding: 64px 0; }
+.flex-between{ display: flex; align-items: center; justify-content: space-between; }
+.grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.text-mono{ font-family: var(--font-mono); }
+
+@media (max-width: 760px){
+  .grid-2{ grid-template-columns: 1fr; }
+  .with-index{ grid-template-columns: 1fr; }
+  .index-col{ display: none; }
+  .nav-links{ display: none; }
+}

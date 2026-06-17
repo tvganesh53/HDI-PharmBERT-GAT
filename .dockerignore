@@ -1,0 +1,45 @@
+# ── .dockerignore ────────────────────────────────────────────────────────────
+# Keep the Docker build context small and safe.
+
+# Virtual environment — never copy into image
+venv/
+.venv/
+env/
+
+# Secret files
+.env
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Test artifacts
+.pytest_cache/
+*.db
+test_phase_g.db
+htmlcov/
+.coverage
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if any frontend assets)
+node_modules/
