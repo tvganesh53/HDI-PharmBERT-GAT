@@ -66,7 +66,7 @@ def _load_predictor() -> Any:
     try:
         from pipeline_hdi import hdi_pipeline
         hdi_pipeline.load()
-        log.info("HDIPipeline loaded (PharmBERT P8 + PharmFusion P8)")
+        log.info("HDIPipeline loaded (PharmBERT P9 + PharmFusion P8)")
         return hdi_pipeline
     except Exception as exc:
         log.warning("HDIPipeline failed (%s), falling back to PharmBERT only.", exc)
@@ -133,8 +133,8 @@ _analytics_task: asyncio.Task | None = None
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="NLP Classifier API",
-    description="Herb-Drug Interaction classifier — PharmBERT P8 + PharmFusion P7",
-    version="7.0.0",
+    description="Herb-Drug Interaction classifier — PharmBERT P9 + PharmFusion P8",
+    version="9.0.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -400,7 +400,7 @@ async def root():
     return {
         "name": "NLP Classifier API",
         "phase": "G",
-        "models": "PharmBERT P8 + PharmFusion P7",
+        "models": "PharmBERT P9 + PharmFusion P8",
         "docs": "/docs",
         "dashboard": "/dashboard",
         "health": "/health",
@@ -443,7 +443,7 @@ def _build_dashboard_html() -> str:
 </head>
 <body>
     <h1>🌿 HDI Classifier Dashboard</h1>
-    <p style="color:#666">PharmBERT P8 (severity) + PharmFusion P7 (type)</p>
+    <p style="color:#666">PharmBERT P9 (severity) + PharmFusion P8 (type)</p>
     <div class="card">
         <label>API Key: <input type="text" id="apiKey" placeholder="sk-..." /></label>
         <button onclick="loadData()">Load Data</button>
@@ -537,11 +537,11 @@ async def debug_predictor():
 async def debug_model_file():
     import os
     return {
-        "pharmbert_path":  os.getenv("PHARMBERT_MODEL_PATH", "pharmbert_p8_best.pt"),
-        "fusion_path":     os.getenv("PHARMFUSION_MODEL_PATH", "pharmfusion_p7_best.pt"),
+        "pharmbert_path":  os.getenv("PHARMBERT_MODEL_PATH", "pharmbert_p9_best.pt"),
+        "fusion_path":     os.getenv("PHARMFUSION_MODEL_PATH", "pharmfusion_p8_best.pt"),
         "gat_path":        os.getenv("PHARMGAT_EMB_PATH", "pharmgat_node_embeddings.pt"),
-        "pharmbert_exists": Path("pharmbert_p8_best.pt").exists(),
-        "fusion_exists":    Path("pharmfusion_p7_best.pt").exists(),
+        "pharmbert_exists": Path("pharmbert_p9_best.pt").exists(),
+        "fusion_exists":    Path("pharmfusion_p8_best.pt").exists(),
         "gat_exists":       Path("pharmgat_node_embeddings.pt").exists(),
     }
  
@@ -549,7 +549,7 @@ async def debug_model_file():
 async def debug_weights():
     import torch
     try:
-        ckpt = torch.load("pharmbert_p8_best.pt", map_location="cpu", weights_only=False)
+        ckpt = torch.load("pharmbert_p9_best.pt", map_location="cpu", weights_only=False)
         cw   = ckpt["model_state_dict"]["classifier.weight"]
         return {
             "classifier_weight_sum": round(cw.sum().item(), 6),

@@ -5,7 +5,7 @@ from huggingface_hub import hf_hub_download
 
 MODEL_REPO = "tvganesh538/hdi-models"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-LABEL_NAMES = ["No Effect", "Possible", "Positive", "Negative", "Harmful"]
+LABEL_NAMES = ["Harmful", "Negative", "No Effect", "Positive", "Possible"]
 
 
 class PharmBERTClassifier(nn.Module):
@@ -32,10 +32,10 @@ class PharmBERTPredictor:
     def load(self):
         if self._loaded:
             return
-        print("Downloading pharmbert_p8_best.pt ...")
+        print("Downloading pharmbert_p9_best.pt ...")
         ckpt_path = hf_hub_download(
             repo_id=MODEL_REPO,
-            filename="pharmbert_p8_best.pt",
+            filename="pharmbert_p9_best.pt",
             cache_dir="/tmp/hdi_models"
         )
         self.tokenizer = AutoTokenizer.from_pretrained("dmis-lab/biobert-base-cased-v1.2")
