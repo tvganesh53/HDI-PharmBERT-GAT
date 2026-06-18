@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HDI Predictor — Estimating Human Development from Open Indicators</title>
+<meta name="description" content="A research tool that predicts Human Development Index scores from open national indicators using a trained regression model.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand"><span>HDI Predictor</span><span class="brand-mark">v1.0</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+  <section class="section" style="padding-top: 72px;">
+    <div class="with-index">
+      <div class="index-col"><span>FIG. 01 — OVERVIEW</span></div>
+      <div>
+        <p class="eyebrow">Composite indicator modeling</p>
+        <h1>Estimate Human Development Index scores from a country's raw indicators.</h1>
+        <p class="lede">HDI Predictor takes life expectancy, education, and income figures and returns a modeled HDI score, the same composite the UNDP has published since 1990, recomputed from a regression trained on historical cross-country data.</p>
+        <div style="display:flex; gap:14px; margin-top: 28px; flex-wrap:wrap;">
+          <a href="demo.html" class="btn btn-primary">Run the demo →</a>
+          <a href="about.html" class="btn btn-ghost">Read the methodology</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--paper-raised); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="with-index">
+      <div class="index-col"><span>FIG. 02 — INPUTS</span></div>
+      <div>
+        <h2>Three indicators, one score.</h2>
+        <p class="lede" style="margin-bottom: 36px;">The model mirrors the UNDP's own dimensions of development: a long and healthy life, access to knowledge, and a decent standard of living.</p>
+        <div class="grid-2" style="grid-template-columns: repeat(3, 1fr); gap: 24px;">
+          <div class="card">
+            <span class="tag">DIMENSION 1</span>
+            <h3 style="margin-top:14px;">Health</h3>
+            <p style="color:var(--slate); margin:0;">Life expectancy at birth, in years.</p>
+          </div>
+          <div class="card">
+            <span class="tag">DIMENSION 2</span>
+            <h3 style="margin-top:14px;">Education</h3>
+            <p style="color:var(--slate); margin:0;">Mean and expected years of schooling.</p>
+          </div>
+          <div class="card">
+            <span class="tag">DIMENSION 3</span>
+            <h3 style="margin-top:14px;">Income</h3>
+            <p style="color:var(--slate); margin:0;">Gross national income per capita (PPP).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="with-index">
+      <div class="index-col"><span>FIG. 03 — OUTPUT</span></div>
+      <div class="flex-between" style="align-items:flex-start; flex-wrap:wrap; gap:40px;">
+        <div style="max-width:480px;">
+          <h2>A single dial, read at a glance.</h2>
+          <p style="color:var(--slate);">The demo page renders the prediction as an index dial, scaled 0 to 1, alongside the conventional UNDP development tier (Low, Medium, High, Very High) for that score.</p>
+          <a href="demo.html" class="btn btn-primary" style="margin-top:8px;">Try it with sample data →</a>
+        </div>
+        <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Sample index dial showing a score of 0.81">
+          <circle cx="110" cy="110" r="92" fill="none" stroke="var(--line)" stroke-width="14"/>
+          <circle cx="110" cy="110" r="92" fill="none" stroke="var(--teal)" stroke-width="14"
+                  stroke-dasharray="466.6" stroke-dashoffset="89" stroke-linecap="round"
+                  transform="rotate(-90 110 110)"/>
+          <text x="110" y="104" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="34" fill="var(--ink)">0.81</text>
+          <text x="110" y="130" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" fill="var(--slate)">VERY HIGH</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><span class="footnote-mark">№</span> HDI Predictor — a research demonstration, not an official UNDP product.</span>
+    <span>Built for academic and exploratory use.</span>
+  </div>
+</footer>
+
+</body>
+</html>
