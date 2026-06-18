@@ -1,4 +1,4 @@
-import os, torch
+﻿import os, torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
 from huggingface_hub import hf_hub_download
@@ -44,15 +44,11 @@ class PharmBERTPredictor:
         ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
         sd = ckpt.get("model_state_dict", ckpt)
         missing, unexpected = self.model.load_state_dict(sd, strict=False)
-        print(f"PharmBERT loaded — missing: {missing}, unexpected: {unexpected}")
+        print(f"PharmBERT loaded -- missing: {missing}, unexpected: {unexpected}")
         self.model.eval()
         self._loaded = True
 
     def predict(self, texts):
-        """Returns list of dicts — one per text.
-        Each dict has keys: top_label, top_score, scores (dict label->score)
-        This is the format pipeline_hdi.py expects from self._bert.predict().
-        """
         if not self._loaded:
             self.load()
         results = []
@@ -63,12 +59,7 @@ class PharmBERTPredictor:
             ).to(DEVICE)
             with torch.no_grad():
                 logits = self.model(enc["input_ids"], enc["attention_mask"])
-                # Prior correction — down-weight Harmful (77.3%) and boost minority classes
-                import torch as _torch
-                freq = _torch.tensor([0.021, 0.051, 0.080, 0.075, 0.773], device=logits.device)
-                correction = _torch.log(1.0 / freq)
-                logits = logits + correction
-                probs = _torch.softmax(logits, dim=-1).squeeze().tolist()
+                probs = torch.softmax(logits, dim=-1).squeeze().tolist()
             top_idx = int(torch.argmax(logits, dim=-1).item())
             results.append({
                 "top_label": LABEL_NAMES[top_idx],
