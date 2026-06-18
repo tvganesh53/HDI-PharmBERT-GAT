@@ -1,5 +1,5 @@
-"""
-pipeline_hdi.py — HDI Pipeline
+﻿"""
+pipeline_hdi.py â€” HDI Pipeline
 Combines PharmBERT P8 (severity) + PharmFusion P8 (interaction type).
  
 Output format matches what app_phase_g.py classify route expects:
@@ -39,11 +39,11 @@ class HDIPipeline:
         self._fusion = pharmfusion_predictor
  
     def load(self):
-        log.info("HDIPipeline: loading PharmBERT P8 …")
+        log.info("HDIPipeline: loading PharmBERT P8 â€¦")
         self._bert.load()
-        log.info("HDIPipeline: loading PharmFusion P8 …")
+        log.info("HDIPipeline: loading PharmFusion P8 â€¦")
         self._fusion.load()
-        log.info("HDIPipeline: both models ready ✓")
+        log.info("HDIPipeline: both models ready âœ“")
  
     @property
     def is_loaded(self) -> bool:
@@ -51,7 +51,7 @@ class HDIPipeline:
  
     def predict(self, texts: list, node_ids: list = None) -> dict:
         """
-        Returns dict with key "outputs" — list of per-text result dicts.
+        Returns dict with key "outputs" â€” list of per-text result dicts.
         Format matches app_phase_g.py classify route expectations exactly.
         """
         if not self.is_loaded:
@@ -66,7 +66,7 @@ class HDIPipeline:
         outputs = []
         for bert_r, fusion_r, node_id in zip(bert_results, fusion_results, node_ids):
  
-            # ── severity block ──────────────────────────────────────────
+            # â”€â”€ severity block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             severity_all_scores = [
                 {"label": label, "score": score}
                 for label, score in bert_r["scores"].items()
@@ -77,7 +77,7 @@ class HDIPipeline:
                 "all_scores": severity_all_scores,
             }
  
-            # ── interaction_type block ──────────────────────────────────
+            # â”€â”€ interaction_type block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             fusion_all_scores = [
                 {"label": label, "score": score}
                 for label, score in fusion_r["scores"].items()
@@ -93,9 +93,9 @@ class HDIPipeline:
                 "gat_lookup":   gat_lookup,
             }
  
-            # ── summary ─────────────────────────────────────────────────
+            # â”€â”€ summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             summary = (
-                f"{fusion_r['top_label']} interaction — "
+                f"{fusion_r['top_label']} interaction â€” "
                 f"{bert_r['top_label']} "
                 f"({round(bert_r['top_score'] * 100, 1)}%)"
             )
@@ -112,6 +112,7 @@ class HDIPipeline:
 # Singleton
 hdi_pipeline = HDIPipeline()
  
+
 
 
 
