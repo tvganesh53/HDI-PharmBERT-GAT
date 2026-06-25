@@ -563,3 +563,13 @@ async def debug_weights():
     except Exception as e:
         return {"error": str(e)}
  
+
+@app.get("/debug/auth-env", tags=["System"])
+async def debug_auth_env():
+    import os
+    perm = os.getenv("PERMANENT_ADMIN_KEY", "")
+    return {
+        "permanent_key_set": bool(perm),
+        "permanent_key_length": len(perm),
+        "permanent_key_prefix": perm[:6] if perm else None
+    }
