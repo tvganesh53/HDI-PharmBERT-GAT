@@ -12,13 +12,15 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
+from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse, FileResponse
  
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=Path(__file__).parent / ".env", override=True)
  
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
  
@@ -397,6 +399,8 @@ async def metrics():
 # ── Root ──────────────────────────────────────────────────────────────────────
 @app.get("/", tags=["System"])
 async def root():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
     return {
         "name": "NLP Classifier API",
         "phase": "G",
@@ -405,7 +409,6 @@ async def root():
         "dashboard": "/dashboard",
         "health": "/health",
     }
- 
 # ── Setup (generate API key) ──────────────────────────────────────────────────
 @app.get("/setup", tags=["System"])
 async def setup():

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Phase G - database.py
 Auto-switches between MySQL (local Docker) and SQLite (HF Spaces).
 Set DB_BACKEND=sqlite for HF Spaces, DB_BACKEND=mysql for local Docker.

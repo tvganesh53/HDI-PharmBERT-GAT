@@ -95,10 +95,11 @@ class HDIPipeline:
  
             # â”€â”€ summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             summary = (
-                f"{fusion_r['top_label']} interaction â€” "
+                f"{fusion_r['top_label']} interaction - "
                 f"{bert_r['top_label']} "
                 f"({round(bert_r['top_score'] * 100, 1)}%)"
             )
+
  
             outputs.append({
                 "severity":         severity,

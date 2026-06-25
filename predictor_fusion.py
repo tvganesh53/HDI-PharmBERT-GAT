@@ -13,7 +13,7 @@ from huggingface_hub import hf_hub_download
 log = logging.getLogger(__name__)
 
 REPO_ID       = "tvganesh538/hdi-models"
-FUSION_FILE   = "pharmfusion_p8_best.pt"
+FUSION_FILE   = "pharmfusion_p9_best.pt"
 GAT_EMB_FILE  = "pharmgat_node_embeddings.pt"
 BERT_NAME     = "dmis-lab/biobert-base-cased-v1.2"
 LABEL_NAMES   = ["Food", "Herb"]

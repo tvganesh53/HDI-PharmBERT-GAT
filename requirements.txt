@@ -1,5 +1,12 @@
 # ── Phase H — requirements.txt (full production stack) ───────────────────────
-
+fastapi
+uvicorn
+transformers
+torch
+huggingface_hub
+scikit-learn
+numpy
+pandas
 # ── Web framework ─────────────────────────────────────────────────────────────
 fastapi>=0.111.0
 uvicorn[standard]>=0.29.0
