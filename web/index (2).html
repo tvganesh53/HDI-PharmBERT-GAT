@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HDI Classifier — Herb Drug Interaction</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #7ee8a2;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #888;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2a2d3a;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      color: #7ee8a2;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      background: #0f1117;
+      border: 1px solid #2a2d3a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e0e0e0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #7ee8a2;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-full {
+      grid-column: 1 / -1;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #7ee8a2;
+      color: #0f1117;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn:hover { background: #5dd88a; }
+    .btn:disabled { background: #3a3d4a; color: #666; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #7ee8a2;
+      font-size: 0.95rem;
+    }
+
+    .results { display: none; }
+
+    .result-card {
+      background: #0f1117;
+      border: 1px solid #2a2d3a;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .result-header h3 {
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .badge-harmful   { background: #ff4d4d22; color: #ff4d4d; border: 1px solid #ff4d4d; }
+    .badge-negative  { background: #ff944d22; color: #ff944d; border: 1px solid #ff944d; }
+    .badge-possible  { background: #ffd70022; color: #ffd700; border: 1px solid #ffd700; }
+    .badge-positive  { background: #7ee8a222; color: #7ee8a2; border: 1px solid #7ee8a2; }
+    .badge-noeffect  { background: #88888822; color: #888888; border: 1px solid #888888; }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .score-label {
+      width: 90px;
+      font-size: 0.82rem;
+      color: #888;
+    }
+
+    .score-bar-bg {
+      flex: 1;
+      background: #2a2d3a;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .score-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .bar-harmful  { background: #ff4d4d; }
+    .bar-negative { background: #ff944d; }
+    .bar-possible { background: #ffd700; }
+    .bar-positive { background: #7ee8a2; }
+    .bar-noeffect { background: #888888; }
+
+    .score-pct {
+      width: 48px;
+      text-align: right;
+      font-size: 0.82rem;
+      color: #ccc;
+    }
+
+    .summary-box {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: #1a1d27;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: #aaa;
+    }
+
+    .interaction-type {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .interaction-type span {
+      color: #7ee8a2;
+      font-weight: 600;
+    }
+
+    .latency {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 8px;
+    }
+
+    .error-box {
+      background: #ff4d4d11;
+      border: 1px solid #ff4d4d44;
+      border-radius: 8px;
+      padding: 14px;
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .api-config {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .api-config { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🌿 HDI Classifier</h1>
+    <p>Herb-Drug Interaction Prediction — Powered by PharmBERT P10 + PharmFusion P9 + PharmGAT P8</p>
+  </header>
+
+  <!-- API Config -->
+  <div class="card">
+    <h2>⚙️ API Configuration</h2>
+    <div class="api-config">
+      <div class="form-group">
+        <label>API Endpoint</label>
+        <input type="text" id="apiUrl"
+          value="https://tvganesh538-nlp-classifier-api.hf.space/classify">
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="password" id="apiKey" placeholder="Enter your API key">
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Form -->
+  <div class="card">
+    <h2>🔬 Predict Interaction</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Herb Name</label>
+        <input type="text" id="herb" placeholder="e.g. St. Johns Wort">
+      </div>
+      <div class="form-group">
+        <label>Drug Name</label>
+        <input type="text" id="drug" placeholder="e.g. Warfarin">
+      </div>
+      <div class="form-group">
+        <label>Target (optional)</label>
+        <input type="text" id="target" placeholder="e.g. CYP3A4">
+      </div>
+      <div class="form-group">
+        <label>Interaction Type</label>
+        <select id="itype">
+          <option value="Herb">Herb</option>
+          <option value="Food">Food</option>
+        </select>
+      </div>
+      <div class="form-group form-full">
+        <label>Interaction Mechanism</label>
+        <textarea id="mechanism"
+          placeholder="e.g. Induces CYP3A4 reducing drug plasma levels and efficacy"></textarea>
+      </div>
+    </div>
+    <button class="btn" id="predictBtn" onclick="predict()">
+      🔍 Predict Interaction
+    </button>
+  </div>
+
+  <!-- Spinner -->
+  <div class="spinner" id="spinner">
+    ⏳ Analyzing interaction... (may take 10-15s on free tier)
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="card">
+      <h2>📊 Results</h2>
+      <div id="resultCards"></div>
+      <div class="latency" id="latency"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const barClass = {
+    'Harmful':   'bar-harmful',
+    'Negative':  'bar-negative',
+    'No Effect': 'bar-noeffect',
+    'Positive':  'bar-positive',
+    'Possible':  'bar-possible',
+  };
+
+  const badgeClass = {
+    'Harmful':   'badge-harmful',
+    'Negative':  'badge-negative',
+    'No Effect': 'badge-noeffect',
+    'Positive':  'badge-positive',
+    'Possible':  'badge-possible',
+  };
+
+  async function predict() {
+    const herb      = document.getElementById('herb').value.trim();
+    const drug      = document.getElementById('drug').value.trim();
+    const target    = document.getElementById('target').value.trim() || 'Unknown';
+    const itype     = document.getElementById('itype').value;
+    const mechanism = document.getElementById('mechanism').value.trim();
+    const apiUrl    = document.getElementById('apiUrl').value.trim();
+    const apiKey    = document.getElementById('apiKey').value.trim();
+
+    if (!herb || !drug) {
+      showError('Please enter both Herb and Drug names.');
+      return;
+    }
+    if (!apiKey) {
+      showError('Please enter your API key.');
+      return;
+    }
+    if (!mechanism) {
+      showError('Please enter an interaction mechanism.');
+      return;
+    }
+
+    const text = `[HERB] ${herb} [DRUG] ${drug} [TYPE] ${itype} [TARGET] ${target} [INTERACTION] ${mechanism}`;
+
+    setLoading(true);
+    hideError();
+    hideResults();
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify({ inputs: [text] }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showError(`API Error: ${JSON.stringify(data.detail)}`);
+        return;
+      }
+
+      renderResults(data);
+    } catch (err) {
+      showError(`Network error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderResults(data) {
+    const container = document.getElementById('resultCards');
+    container.innerHTML = '';
+
+    data.results.forEach((r, i) => {
+      const badge    = badgeClass[r.top_label] || 'badge-possible';
+      const scores   = r.classifications || [];
+      const itype    = r.interaction_type;
+      const summary  = r.summary || '';
+
+      const scoresHtml = scores.map(s => `
+        <div class="score-row">
+          <div class="score-label">${s.label}</div>
+          <div class="score-bar-bg">
+            <div class="score-bar ${barClass[s.label] || 'bar-possible'}"
+                 style="width: ${(s.score * 100).toFixed(1)}%"></div>
+          </div>
+          <div class="score-pct">${(s.score * 100).toFixed(1)}%</div>
+        </div>
+      `).join('');
+
+      const itypeHtml = itype ? `
+        <div class="interaction-type">
+          Interaction type: <span>${itype.top_label}</span>
+          (${(itype.top_score * 100).toFixed(1)}%)
+        </div>
+      ` : '';
+
+      container.innerHTML += `
+        <div class="result-card">
+          <div class="result-header">
+            <h3>Result ${i + 1}</h3>
+            <span class="badge ${badge}">${r.top_label}</span>
+          </div>
+          ${scoresHtml}
+          ${itypeHtml}
+          <div class="summary-box">${summary}</div>
+        </div>
+      `;
+    });
+
+    document.getElementById('latency').textContent =
+      `Latency: ${data.latency_ms.toFixed(0)}ms`;
+    document.getElementById('results').style.display = 'block';
+  }
+
+  function setLoading(on) {
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('predictBtn').disabled   = on;
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent    = msg;
+    box.style.display  = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('errorBox').style.display = 'none';
+  }
+
+  function hideResults() {
+    document.getElementById('results').style.display = 'none';
+  }
+</script>
+</body>
+</html>
